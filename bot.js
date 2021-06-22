@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
-const request = require('request');
 const axios = require('axios');
+const cheerio = require('cheerio');
 const client = new Discord.Client();
 const config = require("./config.json");
-const { compileFunction } = require('vm');
+const { index } = require('cheerio/lib/api/traversing');
 const prefix = "!";
 
 client.on('ready', () => {
@@ -20,7 +20,7 @@ client.on('message', async(msg) => {
     command = command[1].split(":");
 
     console.log(command);
-
+    /*-------------------------------------------------------*/
     if (command.toString() === '뭐야'){
         msg.reply('뭐요 나 지금 작동해요');
     }
@@ -33,12 +33,13 @@ client.on('message', async(msg) => {
           .addFields(
             { name: '!도움말', value: '도움말을 가져옵니다. 바로 이 창을 띄우는 거죠. 이제야 아셨나요?'},
             { name: '!s:닉네임 ex) !s:Rosen Kranz', value: '로드스톤에서 빠르게 이 닉네임을 찾아줍니다.'},
-            { name: '!d:닉네임:서버 ex) !d:Waver Velvet:Pandaemonium',value:'로드스톤에서 이 사람에 대한 뒷정보를 캐옵니다.'}
+            { name: '!d:닉네임:서버 ex) !d:Waver Velvet:Pandaemonium',value:'로드스톤에서 이 사람에 대한 뒷정보를 캐옵니다.'},
+            { name: '!x:닉네임 ex) !x:빛의영자하나', value:'한섭 한정! 인벤 사사게에 닉네임을 검색해 옵니다.'}
             )
         msg.channel.send(HelpEmbed)
-      }
-      /*-----------------------------------------------------*/
-      if(command[0] == "s" && command[1]) {
+    }
+    /*-------------------------------------------------------*/
+    if(command[0] == "s" && command[1]) {
           try {
             msg.channel.send("로드스톤에서 해당 정보를 가져오는 중이야.\n정보를 가져오는데 수초가 걸릴 수 있으니 조금만 기다려 줘.\n검색끝! 이라고 하기전까지 기다려 줘!");
             await loadingstuff(command, msg);
@@ -46,9 +47,9 @@ client.on('message', async(msg) => {
             msg.channel.send("ㅈㅅ 오류남 콘솔보셈");
             console.error(error);
           }
-      }
-      /*------------------------------------------------------*/
-      if(command[0] == "d" && command[1] && command[2]) {
+    }
+    /*-------------------------------------------------------*/
+    if(command[0] == "d" && command[1] && command[2]) {
         try {
         msg.channel.send("로드스톤에서 해당 정보를 가져오는 중이야.\n정보를 가져오는데 수초가 걸릴 수 있으니 조금만 기다려 줘.");
         await loadingstuffdetail(command, msg);
@@ -56,7 +57,15 @@ client.on('message', async(msg) => {
           msg.channel.send("ㅈㅅ 오류남 콘솔보셈");
           console.error(error);
         }
-        /*----------------------------------------------------*/
+    }
+    /*-------------------------------------------------------*/
+    if(command[0] == "x" && command[1]){
+        try {
+            msg.channel.send("한섭 인벤 사사게에서 해당 정보를 가져오는 중이야.\n정보를 가져오는데 수초가 걸릴 수 있으니 조금만 기다려 줘.");
+            const theList = await loadingsasage(command, msg);
+        } catch (error) {
+            
+        }
     }
 });
 const loadingstuff = async(command, msg) => {
@@ -172,6 +181,55 @@ const loadingstuffdetail = async(command, msg) => {
         msg.channel.send(thisman)
     } catch (error) {
         
+    }
+}
+/*----------------------------------------------------------*/
+const loadingsasage = async(command, msg) => {
+    try {
+        getHtml(command[1])
+        .then(dataa => {
+            let ulList = [];
+            let filteredList = [];
+            let $ = cheerio.load(dataa.data);
+            const $article = $('div.articleList table tbody tr td table tbody tr:nth-child(3) td form table tbody').children('tr')
+            $article.each(function(i, elem){
+                ulList[i] = {
+                    url:$(this).find('td.bbsSubject a').attr('href'),
+                    text:$(this).find('td.bbsSubject a').text(),
+                    from:$(this).find('td.bbsNick span').text()
+                }
+            })
+            for(i=0;i<ulList.length;i++){
+                let something = ulList[i].url;
+                if(something !== undefined){
+                    filteredList.push(ulList[i]);
+                }
+            }
+            console.log(filteredList);
+            for(let i =1; i < filteredList.length; i++){
+                let sasageChar = new Discord.MessageEmbed()
+                .setColor('#00ff9d')
+                .setTitle(`${command[1]}에 대한 사사게 검색기록`)
+                .setAuthor('한국 파판14 인벤 공식 정보')
+                .addFields(
+                    { name: `작성자 : ${filteredList[i].from}`,
+                    value: `제목 = ${filteredList[i].text}
+                    Link = ${filteredList[i].url}`},
+                    )
+                msg.channel.send(sasageChar);
+            }
+
+        });
+    } catch (error) {
+        console.error(error)
+    }
+}
+const getHtml = async(key) => {
+    try {
+        let who = encodeURI(key);
+        return await axios.get(`https://www.inven.co.kr/board/ff14/4485?keyword=${who}`);
+    } catch (error) {
+        console.error(error);
     }
 }
 client.login(config.token);
