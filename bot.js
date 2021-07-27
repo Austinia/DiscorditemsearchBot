@@ -32,12 +32,12 @@ client.on('message', async (msg) => {
       .setThumbnail(url = "https://img.finalfantasyxiv.com/lds/h/9/_Huf58epDlt9vXiO8IIfPXxtXI.png")
       .addFields(
         { name: '!도움말 || !help', value: '도움말을 가져옵니다. 바로 이 창을 띄웁니다.' },
-        { name: '!s:닉네임', value: '로드스톤에서 빠르게 이 닉네임을 찾아줍니다.\nex) !s:Rosen Kranz' },
-        { name: '!d:닉네임:서버', value: '로드스톤에서 이 사람에 대한 자세한 정보를 캐옵니다.\nex) !d:Rosen Kranz:Pandaemonium' },
+        { name: '!s:닉네임', value: '입력한 닉네임을 토대로 넓은 기준으로 검색합니다.\n(정확한 서버를 모르거나 기억하는 닉네임이 애매할때 사용 하면 좋습니다.)\nex) !s:Rosen Kranz' },
+        { name: '!d:닉네임:서버', value: '로드스톤에서 이 닉네임에 대한 자세한 정보를 찾아옵니다.\nex) !d:Rosen Kranz:Pandaemonium' },
         { name: '!x:닉네임', value: '한섭 한정! 인벤 사사게에 닉네임을 검색해 옵니다.\nex) !x:빛의영자하나' },
-        { name: '!f:자유부대명:서버', value: '해당 자유부대의 부대원들을 서치해줍니다.\nex) !f:Equilibrium:Phoenix' },
+        { name: '!f:자유부대명:서버', value: '해당 자유부대의 부대원들을 찾아줍니다.\nex) !f:Equilibrium:Phoenix' },
         { name: '!b:닉네임:서버', value: '해당 캐릭터의 친구리스트를 불러옵니다.(공개 설정이 되어있는 경우만)\nex) !b:Rosen Kranz:Pandaemonium' },
-        { name: '**검색시 주의사항**', value:'대문자 소문자 와 띄어쓰기 까지 정확히 입력해야 검색가능해쿠뽀!\n세미콜론; 이 아니고 콜론: 이야 쿠뽀!'}
+        { name: '**@@@@@@@@검색시 주의사항@@@@@@@@**', value:'**대문자 소문자 와 띄어쓰기 까지 정확히 입력해야 검색가능해쿠뽀!**\n**세미콜론; 이 아니고 콜론: 이야 쿠뽀!**'}
       )
       .setFooter('FFXIV Searching Bot', 'https://img.finalfantasyxiv.com/lds/h/9/_Huf58epDlt9vXiO8IIfPXxtXI.png')
     msg.channel.send(HelpEmbed)
@@ -107,7 +107,7 @@ client.on('message', async (msg) => {
 /*----------------------------------------------------------*/
 const loadingstuff = async (command, msg) => {
   try {
-    const responce = await axios.get(`https://xivapi.com/character/search?name=${command[1]}`);
+    const responce = await axios.get(`https://xivapi.com/character/search?name=${command[1]}&private_key=${config.API_KEY}`);
     const obj = responce.data.Results;
     console.log('obj complete')
 
@@ -118,31 +118,41 @@ const loadingstuff = async (command, msg) => {
         searchinglist.push(obj[i]);
       }
     }
-    console.log('searchinglist :')
-    console.log(searchinglist);
     if (searchinglist.length == 0) {
       console.log('something have problem list is empty');
       msg.channel.send("검색 결과가 없어, 오타 및 대문자나 닉네임을 확인해줘");
       return;
     }
-
-
     for (let i = 0; i < searchinglist.length; i++) {
+      const mname_temp = searchinglist[i].Name.split(' ');
+      const mURL_Name = mname_temp[0] + '%20' + mname_temp[1];
+      let where = searchinglist[i].Server;
+      let why = where.split("("); // ["Pandaemonuim ", "Mana)"]
+      let when = why[0].trim(); // "Pandaemonium" 앞 뒤 공백제거
       let LoadChar = new Discord.MessageEmbed()
         .setColor('#00ff9d')
         .setTitle(`${command[1]}에 대한 조사`)
         .setAuthor('로드스톤 공식 정보')
-        .setImage(`${searchinglist[i].Avatar}`)
+        .setThumbnail(`${searchinglist[i].Avatar}`)
         .addFields(
-          { name: `${searchinglist[i].Name}`, value: `언어 = ${searchinglist[i].Lang}\n서버 = ${searchinglist[i].Server}\nID = ${searchinglist[i].ID}` },
+          { name: `${searchinglist[i].Name}`, value: `언어 = ${searchinglist[i].Lang}\n서버 = ${searchinglist[i].Server}` },
+          { name: '로드스톤 프로필 링크(영어)', value:`https://na.finalfantasyxiv.com/lodestone/character/${searchinglist[i].ID}/`, inline:true},
+          { name: 'FFLOG LINK (JP only)', value: `https://www.fflogs.com/character/jp/${when}/${mURL_Name}`, inline: true }
         )
+        .setFooter('로드스톤 API 정보', 'https://img.finalfantasyxiv.com/lds/h/9/_Huf58epDlt9vXiO8IIfPXxtXI.png')
       msg.channel.send(LoadChar);
     }
-    msg.channel.send(`검색끝!\n자세한 내용을 알고 싶으면\n !d:<name>:<server> 를 입력해봐!`)
+    msg.channel.send(`검색끝쿠뽀!\n자세한 내용을 알고 싶으면\n !d:<name>:<server> 이런 방법으로 입력해쿠뽀!`)
 
   } catch (error) {
-    console.log(error);
-    msg.channel.send(`오류가 생겼어! 개발자에게 문의해줘 : 오류코드 ${error}`);
+    if (error == "Error: Request failed with status code 404") {
+      msg.channel.send(`검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀`);
+    }else if (error == "ReferenceError: searchinglist is not defined") {
+      msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
+    }else {
+    console.error(error);
+    msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
+    }
   }
 
 
@@ -150,7 +160,7 @@ const loadingstuff = async (command, msg) => {
 /*----------------------------------------------------------*/
 const loadingstuffdetail = async (command, msg) => {
   try {
-    const responce = await axios.get(`https://xivapi.com/character/search?name=${command[1]}`);
+    const responce = await axios.get(`https://xivapi.com/character/search?name=${command[1]}&private_key=${config.API_KEY}`);
     const obj = responce.data.Results;
     console.log('obj ready')
     for (let i = 0; i < obj.length; i++) {
@@ -167,8 +177,7 @@ const loadingstuffdetail = async (command, msg) => {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
       return;
     }
-    const IDresponce = await axios.get(`https://xivapi.com/character/${searchinglist.ID}?data=AC,FR,FC,FCM,PVP`);
-    console.log(`https://xivapi.com/character/${searchinglist.ID}?data=AC,FR,FC,FCM,PVP`);
+    const IDresponce = await axios.get(`https://xivapi.com/character/${searchinglist.ID}?&private_key=${config.API_KEY}&data=AC,FR,FC,FCM,PVP`);
     const IDobj = IDresponce.data.Character
     const FCobj = IDresponce.data.FreeCompany
     const FCMobj = IDresponce.data.FreeCompanyMembers
@@ -344,11 +353,13 @@ const loadingstuffdetail = async (command, msg) => {
     }
     msg.channel.send(`해당 캐릭터에 대한 검색을 마쳤어 쿠뽀!`)
   } catch (error) {
-    if (error == "ReferenceError: searchinglist is not defined") {
+    if (error == "Error: Request failed with status code 404") {
+      msg.channel.send(`검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀`);
+    }else if (error == "ReferenceError: searchinglist is not defined") {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
-    }
-    else {
-      msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
+    }else {
+    console.error(error);
+    msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
     }
   }
 }
@@ -385,13 +396,15 @@ const loadingsasage = async (command, msg) => {
             .setColor('#00ff9d')
             .setTitle(`${command[1]}에 대한 사사게 검색기록`)
             .setAuthor('한국 파판14 인벤 공식 정보')
+            .setThumbnail('https://upload3.inven.co.kr/upload/2021/06/23/bbs/i21328909294.png')
             .addFields(
               {
                 name: `작성자 : ${filteredList[i].from}`,
-                value: `서버 : ${filteredList[i].text}
+                value: `**서버 : ${filteredList[i].text}**
                     Link = ${filteredList[i].url}`
               },
             )
+            .setFooter('한국 파판14 인벤 사건/사고 게시판', 'https://static.inven.co.kr/image_2011/webzine/logo/webzine_rn_logo_w.png')
           msg.channel.send(sasageChar);
         }
 
@@ -404,7 +417,7 @@ const loadingsasage = async (command, msg) => {
 /*----------------------------------------------------------*/
 const loadingfreecompanymember = async (command, msg) => {
   try {
-    const responce = await axios.get(`https://xivapi.com/freecompany/search?name=${command[1]}&server=${command[2]}`);
+    const responce = await axios.get(`https://xivapi.com/freecompany/search?name=${command[1]}&server=${command[2]}&private_key=${config.API_KEY}`);
     const obj = responce.data.Results;
     console.log('obj ready')
     for (let i = 0; i < obj.length; i++) {
@@ -419,7 +432,7 @@ const loadingfreecompanymember = async (command, msg) => {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
       return;
     }
-    const IDresponce = await axios.get(`https://xivapi.com/freecompany/${companylist.ID}?data=FCM`);
+    const IDresponce = await axios.get(`https://xivapi.com/freecompany/${companylist.ID}?&private_key=${config.API_KEY}&data=FCM`);
     const FCobj = IDresponce.data.FreeCompany
     const FCMobj = IDresponce.data.FreeCompanyMembers
     for (let i = 0; i < FCMobj.length; i++) {
@@ -441,18 +454,20 @@ const loadingfreecompanymember = async (command, msg) => {
     msg.channel.send(`이상 ${FCobj.Name} 부대원 목록이었어쿠뽀!`)
   }
   catch (error) {
-    if (error == "ReferenceError: companylist is not defined") {
+    if (error == "Error: Request failed with status code 404") {
+      msg.channel.send(`검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀`);
+    }else if (error == "ReferenceError: companylist is not defined") {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
-    }
-    else {
-      msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
+    }else {
+    console.error(error);
+    msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
     }
   }
 }
 /*----------------------------------------------------------*/
 const loadingfriendslist = async (command, msg) => {
   try {
-    const responce = await axios.get(`https://xivapi.com/character/search?name=${command[1]}`);
+    const responce = await axios.get(`https://xivapi.com/character/search?name=${command[1]}&private_key=${config.API_KEY}`);
     const obj = responce.data.Results;
     console.log('obj is ready')
 
@@ -470,7 +485,7 @@ const loadingfriendslist = async (command, msg) => {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
       return;
     }
-    const IDresponce = await axios.get(`https://xivapi.com/character/${searchinglist.ID}?data=AC,FR,FC,FCM,PVP`);
+    const IDresponce = await axios.get(`https://xivapi.com/character/${searchinglist.ID}?&private_key=${config.API_KEY}&data=AC,FR,FC,FCM,PVP`);
     const IDobj = IDresponce.data.Character
     const FRobj = IDresponce.data.Friends
     const FRPublic = IDresponce.data.FriendsPublic
@@ -500,8 +515,14 @@ const loadingfriendslist = async (command, msg) => {
       msg.channel.send("이 친구는 친구리스트를 공개하지 않았어쿠뽀")
     }
   } catch (error) {
+    if (error == "Error: Request failed with status code 404") {
+      msg.channel.send(`검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀`);
+    }else if (error == "ReferenceError: searchinglist is not defined") {
+      msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
+    }else {
     console.error(error);
     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
+    }
   }
 }
 /*----------------------------------------------------------*/
