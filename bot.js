@@ -1,13 +1,28 @@
+const { Koreanbots } = require("koreanbots")
 const Discord = require('discord.js');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const client = new Discord.Client();
 const config = require("./config.json");
+const koreanbots = new Koreanbots({
+  api: {
+      token: `${config.Koreanbottoken}`
+  },
+  clientID: `${config.clientID}`
+})
 const prefix = "!";
+
+// 서버수 업데이트
+let update = servers => koreanbots.mybot.update({ servers, shards: client.shard?.count }) 
+    .then(res => console.log("서버 수를 정상적으로 업데이트하였습니다!\n반환된 정보:" + JSON.stringify(res)))
+    .catch(console.error)
 
 client.on('ready', () => {
   console.log(`${client.user.tag}, 시스템 온라인!`);
-  client.user.setActivity('유저 뒷조사', { type: 'STREAMING' })
+  client.user.setStatus('idle');
+  client.user.setActivity('점검 / maintenance', { type: 'PLAYING' })
+  update(client.guilds.cache.size) // 준비 상태를 시작할 때, 최초로 업데이트합니다.
+  setInterval(() => update(client.guilds.cache.size), 600000) // 10분마다 서버 수를 업데이트합니다.
 });
 /*----------------------------------------------------------*/
 client.on('message', async (msg) => {
@@ -186,10 +201,12 @@ const loadingstuffdetail = async (command, msg) => {
     const name_temp = IDobj.Name.split(' ');
     const URL_Name = name_temp[0] + '%20' + name_temp[1];
     const Fcn = IDobj.FreeCompanyName
-    const Fct = FCobj.Tag
+    let Fct = '';
     if (Fcn == null) {
       Fcn = '부대없음';
-      Fct = '';
+      Fct = '없어용'
+    } else {
+      Fct = FCobj.Tag
     }
     let thisman = new Discord.MessageEmbed() //기본 정보 및 전투 클래스
       .setColor('#00ff9d')
