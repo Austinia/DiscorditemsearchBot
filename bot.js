@@ -166,8 +166,6 @@ const loadingstuff = async (command, msg) => {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
     }else if (error == "Error: Request failed with status code 503"){
       msg.channel.send("로드스톤이 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
-    }else if (error == "Error: Request failed with status code 400"){
-      msg.channel.send("로드스톤 데이터 센터가 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
     }else {
     console.error(error);
     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
@@ -380,8 +378,6 @@ const loadingstuffdetail = async (command, msg) => {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
     }else if (error == "Error: Request failed with status code 503"){
       msg.channel.send("로드스톤이 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
-    }else if (error == "Error: Request failed with status code 400"){
-      msg.channel.send("로드스톤 데이터 센터가 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
     }else {
     console.error(error);
     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
@@ -485,8 +481,6 @@ const loadingfreecompanymember = async (command, msg) => {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
     }else if (error == "Error: Request failed with status code 503"){
       msg.channel.send("로드스톤이 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
-    }else if (error == "Error: Request failed with status code 400"){
-      msg.channel.send("로드스톤 데이터 센터가 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
     }else {
     console.error(error);
     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
@@ -550,8 +544,6 @@ const loadingfriendslist = async (command, msg) => {
       msg.channel.send("검색 결과가 없어쿠뽀, 오타, 대문자, 서버 와 닉네임을 확인해줘쿠뽀");
     }else if (error == "Error: Request failed with status code 503"){
       msg.channel.send("로드스톤이 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
-    }else if (error == "Error: Request failed with status code 400"){
-      msg.channel.send("로드스톤 데이터 센터가 점검 중 인것 같아쿠뽀! 점검이 끝나고 시도해봐쿠뽀!")
     }else {
     console.error(error);
     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
