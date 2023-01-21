@@ -48,7 +48,7 @@ client.on("message", async (msg) => {
   if (msg.content == "!도움말" || msg.content == "!help") {
     let HelpEmbed = new Discord.MessageEmbed()
       .setColor("#00ff9d")
-      .setTitle("FFXIV Searching Bot 사용법 [글섭(일본섭)전용]")
+      .setTitle("FFXIV Searching Bot 사용법 [글로벌 서버]")
       .setAuthor("Created By Austin Kim")
       .setThumbnail(
         (url =
@@ -69,11 +69,11 @@ client.on("message", async (msg) => {
           value:
             "로드스톤에서 이 닉네임에 대한 자세한 정보를 찾아옵니다.\nex) !d:Rosen Kranz:Pandaemonium",
         },
-        {
-          name: "!x:닉네임",
-          value:
-            "한섭 한정! 인벤 사사게에 닉네임을 검색해 옵니다.\nex) !x:빛의영자하나",
-        },
+        // {
+        //   name: "!x:닉네임",
+        //   value:
+        //     "한섭 한정! 인벤 사사게에 닉네임을 검색해 옵니다.\nex) !x:빛의영자하나",
+        // },
         {
           name: "!f:자유부대명:서버",
           value:
@@ -130,21 +130,21 @@ client.on("message", async (msg) => {
     );
   }
   /*-------------------------------------------------------*/
-  if (command[0] == "x" && command[1]) {
-    try {
-      msg.channel.send(
-        "한섭 인벤 사사게에서 해당 정보를 가져오는 중이야쿠뽀.\n정보를 가져오는데 수초가 걸릴 수 있으니 조금만 기다려 줘쿠뽀."
-      );
-      await loadingsasage(command, msg);
-    } catch (error) {
-      msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
-    }
-  } else if (command[0] == "x") {
-    //안적었을때
-    msg.channel.send(
-      "사사게에 검색하고 싶은 닉네임을 입력해줘쿠뽀! ex) !x:빛의영자하나"
-    );
-  }
+  // if (command[0] == "x" && command[1]) {
+  //   try {
+  //     msg.channel.send(
+  //       "한섭 인벤 사사게에서 해당 정보를 가져오는 중이야쿠뽀.\n정보를 가져오는데 수초가 걸릴 수 있으니 조금만 기다려 줘쿠뽀."
+  //     );
+  //     await loadingsasage(command, msg);
+  //   } catch (error) {
+  //     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
+  //   }
+  // } else if (command[0] == "x") {
+  //   //안적었을때
+  //   msg.channel.send(
+  //     "사사게에 검색하고 싶은 닉네임을 입력해줘쿠뽀! ex) !x:빛의영자하나"
+  //   );
+  // }
   /*-------------------------------------------------------*/
   if (command[0] == "f" && command[1] && command[2]) {
     try {
@@ -666,60 +666,60 @@ const loadingstuffdetail = async (command, msg) => {
   }
 };
 /*----------------------------------------------------------*/
-const loadingsasage = async (command, msg) => {
-  try {
-    getHtml(command[1]).then((dataa) => {
-      let ulList = [];
-      let filteredList = [];
-      let $ = cheerio.load(dataa.data);
-      const $article = $("div.board-list table tbody").children("tr");
-      $article.each(function (i, elem) {
-        ulList[i] = {
-          url: $(this).find("td.tit div.text-wrap div a").attr("href"),
-          text: $(this).find("td.tit div.text-wrap div a").text().trim(),
-          from: $(this).find("td.user span").text(),
-        };
-      });
-      for (i = 0; i < ulList.length; i++) {
-        let something = ulList[i].url;
-        if (something !== undefined) {
-          filteredList.push(ulList[i]);
-        }
-      }
-      // console.log(filteredList);
-      if (filteredList.length == 0) {
-        console.log("something have problem list is empty");
-        msg.channel.send(
-          "검색 결과가 없어쿠뽀, 오타 및 대문자나 닉네임을 확인해줘쿠뽀"
-        );
-        return;
-      }
-      for (let i = 1; i < filteredList.length; i++) {
-        let sasageChar = new Discord.MessageEmbed()
-          .setColor("#00ff9d")
-          .setTitle(`${command[1]}에 대한 사사게 검색기록`)
-          .setAuthor("한국 파판14 인벤 공식 정보")
-          .setThumbnail(
-            "https://upload3.inven.co.kr/upload/2021/06/23/bbs/i21328909294.png"
-          )
-          .addFields({
-            name: `작성자 : ${filteredList[i].from}`,
-            value: `**서버 : ${filteredList[i].text}**
-                    Link = ${filteredList[i].url}`,
-          })
-          .setFooter(
-            "한국 파판14 인벤 사건/사고 게시판",
-            "https://static.inven.co.kr/image_2011/webzine/logo/webzine_rn_logo_w.png"
-          );
-        msg.channel.send(sasageChar);
-      }
-      msg.channel.send("검색 끝이야쿠뽀!");
-    });
-  } catch (error) {
-    console.error(error);
-    msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
-  }
-};
+// const loadingsasage = async (command, msg) => {
+//   try {
+//     getHtml(command[1]).then((dataa) => {
+//       let ulList = [];
+//       let filteredList = [];
+//       let $ = cheerio.load(dataa.data);
+//       const $article = $("div.board-list table tbody").children("tr");
+//       $article.each(function (i, elem) {
+//         ulList[i] = {
+//           url: $(this).find("td.tit div.text-wrap div a").attr("href"),
+//           text: $(this).find("td.tit div.text-wrap div a").text().trim(),
+//           from: $(this).find("td.user span").text(),
+//         };
+//       });
+//       for (i = 0; i < ulList.length; i++) {
+//         let something = ulList[i].url;
+//         if (something !== undefined) {
+//           filteredList.push(ulList[i]);
+//         }
+//       }
+//       // console.log(filteredList);
+//       if (filteredList.length == 0) {
+//         console.log("something have problem list is empty");
+//         msg.channel.send(
+//           "검색 결과가 없어쿠뽀, 오타 및 대문자나 닉네임을 확인해줘쿠뽀"
+//         );
+//         return;
+//       }
+//       for (let i = 1; i < filteredList.length; i++) {
+//         let sasageChar = new Discord.MessageEmbed()
+//           .setColor("#00ff9d")
+//           .setTitle(`${command[1]}에 대한 사사게 검색기록`)
+//           .setAuthor("한국 파판14 인벤 공식 정보")
+//           .setThumbnail(
+//             "https://upload3.inven.co.kr/upload/2021/06/23/bbs/i21328909294.png"
+//           )
+//           .addFields({
+//             name: `작성자 : ${filteredList[i].from}`,
+//             value: `**서버 : ${filteredList[i].text}**
+//                     Link = ${filteredList[i].url}`,
+//           })
+//           .setFooter(
+//             "한국 파판14 인벤 사건/사고 게시판",
+//             "https://static.inven.co.kr/image_2011/webzine/logo/webzine_rn_logo_w.png"
+//           );
+//         msg.channel.send(sasageChar);
+//       }
+//       msg.channel.send("검색 끝이야쿠뽀!");
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
+//   }
+// };
 /*----------------------------------------------------------*/
 const loadingfreecompanymember = async (command, msg) => {
   try {
@@ -889,16 +889,16 @@ const loadingfriendslist = async (command, msg) => {
   }
 };
 /*----------------------------------------------------------*/
-const getHtml = async (key) => {
-  try {
-    let who = encodeURI(key);
-    return await axios.get(
-      `https://www.inven.co.kr/board/ff14/4485?keyword=${who}`
-    );
-  } catch (error) {
-    msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
-  }
-};
+// const getHtml = async (key) => {
+//   try {
+//     let who = encodeURI(key);
+//     return await axios.get(
+//       `https://www.inven.co.kr/board/ff14/4485?keyword=${who}`
+//     );
+//   } catch (error) {
+//     msg.channel.send(`오류가 생겼어쿠뽀! 개발자에게 문의해줘쿠뽀 : ${error}`);
+//   }
+// };
 /*----------------------------------------------------------*/
 const getDC = (server) => {
   // console.log(server);
